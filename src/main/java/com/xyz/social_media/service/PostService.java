@@ -19,10 +19,12 @@ import java.util.List;
 
 @Service
 public class PostService {
-    private PostRepo postRepo;
-    private FriendShipService friendShipService;
 
-    private static final String UPLOAD_DIR = "C:/uploads/";
+    private final PostRepo postRepo;
+    private final FriendShipService friendShipService;
+
+    // ✅ Update to EC2 directory
+    private static final String UPLOAD_DIR = "/home/ec2-user/uploads/";
 
     @Autowired
     public PostService(PostRepo postRepo, FriendShipService friendShipService) {
@@ -38,23 +40,22 @@ public class PostService {
         post.setCreatedAt(UtilityHelper.getCurrentMillis());
 
         if (file != null && !file.isEmpty()) {
-            try (InputStream inputStream = file.getInputStream()) {  // Use try-with-resources
+            try (InputStream inputStream = file.getInputStream()) {
                 String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename().replace(" ", "_");
                 String fileType = file.getContentType();
                 Path filePath = Paths.get(UPLOAD_DIR, fileName);
 
                 Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
 
-                // Debugging logs
                 System.out.println("File uploaded: " + fileName);
                 System.out.println("Detected file type: " + fileType);
 
                 if (fileType != null) {
                     if (fileType.startsWith("image/")) {
-                        post.setImageUrl("http://localhost:8080/uploads/" + fileName);
+                        post.setImageUrl("http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/uploads/" + fileName);
                         System.out.println("Image URL set: " + post.getImageUrl());
                     } else if (fileType.startsWith("video/")) {
-                        post.setVideoUrl("http://localhost:8080/uploads/" + fileName);
+                        post.setVideoUrl("http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/uploads/" + fileName);
                         System.out.println("Video URL set: " + post.getVideoUrl());
                     } else {
                         System.out.println("Unsupported file type: " + fileType);
@@ -68,24 +69,20 @@ public class PostService {
         return postRepo.save(post);
     }
 
-
-    public List<Post> getAllPostsOfUser(Long userId){
-        List<Post> posts = postRepo.getPostsByUserId(userId);
-
-        return posts;
+    public List<Post> getAllPostsOfUser(Long userId) {
+        return postRepo.getPostsByUserId(userId);
     }
 
-    public List<Post> getAllPostsOfFriendsOfUser(Long userId){
+    public List<Post> getAllPostsOfFriendsOfUser(Long userId) {
         List<Long> friendsIds = friendShipService.getFriendsUserIdsByUserId(userId);
         List<Post> feed = new ArrayList<>();
-        for(Long x : friendsIds){
+        for (Long x : friendsIds) {
             feed.addAll(getAllPostsOfUser(x));
         }
-
         return feed;
     }
 
-    public void deletePost(Long postId){
+    public void deletePost(Long postId) {
         postRepo.deletePostById(postId);
     }
 }

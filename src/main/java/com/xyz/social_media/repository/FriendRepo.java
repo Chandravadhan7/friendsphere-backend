@@ -24,14 +24,15 @@ public interface FriendRepo extends JpaRepository<Friends,Long> {
     @Query(value = "DELETE FROM friends f WHERE f.user_id1 = :userId1 AND f.user_id2 = :userId2 AND f.status = 'pending'", nativeQuery = true)
     void cancelRequest(@Param("userId1") Long userId1, @Param("userId2") Long userId2);
 
-    @Query(value = "SELECT f.user_id2 FROM Friends f WHERE f.user_id1 = :userId AND f.status = 'pending'", nativeQuery = true)
+    @Query(value = "SELECT f.user_id2 FROM friends f WHERE f.user_id1 = :userId AND f.status = 'pending'", nativeQuery = true)
     List<Long> findPendingRequests(@Param("userId") Long userId);
 
     @Query(value = "SELECT f.id FROM friends f WHERE f.user_id2 = :userId AND f.status = :status", nativeQuery = true)
     List<Long> getFriendRequests(@Param("userId") Long userId, @Param("status") String status);
 
 
-    @Query("SELECT f FROM Friends f WHERE f.id IN :friendShipIds")
+    @Query(value = "SELECT * FROM friends WHERE id IN :friendShipIds", nativeQuery = true)
     List<Friends> getFriendShipsByIds(@Param("friendShipIds") List<Long> friendShipIds);
+
 
 }

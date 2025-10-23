@@ -17,10 +17,10 @@ public interface UserRepo extends JpaRepository<User,Long> {
     @Query(value = "select * from user u where u.id = :userId",nativeQuery = true)
     User getUserByUserId(@Param("userId") Long userId);
 
-    @Query(value = "SELECT u.id FROM User u WHERE u.id <> :userId AND u.id NOT IN " +
-            "(SELECT f.user_id2 FROM Friends f WHERE f.user_id1 = :userId and f.status = 'accept'" +
+    @Query(value = "SELECT u.id FROM user u WHERE u.id <> :userId AND u.id NOT IN " +
+            "(SELECT f.user_id2 FROM friends f WHERE f.user_id1 = :userId and f.status = 'accept'" +
             " UNION " +
-            "SELECT f.user_id1 FROM Friends f WHERE f.user_id2 = :userId and f.status = 'accept')",nativeQuery = true)
+            "SELECT f.user_id1 FROM friends f WHERE f.user_id2 = :userId and f.status = 'accept')",nativeQuery = true)
     List<Long> findSuggestedFriendIds(Long userId);
 
 }
