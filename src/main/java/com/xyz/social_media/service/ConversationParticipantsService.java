@@ -37,4 +37,15 @@ public class ConversationParticipantsService {
         return conversationParticipantRepository.save(conversationParticipants);
     }
 
+    public void removeParticipant(Long conversationId, Long userId) {
+        ConversationParticipants conversationParticipants =
+                conversationParticipantRepository.findByConversationIdAndUserId(conversationId, userId);
+
+        if (conversationParticipants == null) {
+            throw new RuntimeException("No conversation participant found for conversationId: " + conversationId + " and userId: " + userId);
+        }
+
+        conversationParticipantRepository.delete(conversationParticipants);
+    }
+
 }

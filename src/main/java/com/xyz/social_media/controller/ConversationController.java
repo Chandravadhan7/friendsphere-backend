@@ -46,8 +46,9 @@ public class ConversationController {
     }
 
     @DeleteMapping("/{conversationId}")
-    public ResponseEntity<String> deleteConversation(@PathVariable Long conversationId){
-        conversationService.deleteConversation(conversationId);
-        return new ResponseEntity<>("chat deleted successfully",HttpStatus.OK);
+    public ResponseEntity<String> deleteConversation(@PathVariable Long conversationId,
+                                                     @RequestHeader("userId") Long userId){
+        conversationService.deleteConversationForUser(conversationId, userId);
+        return new ResponseEntity<>("chat deleted successfully for user",HttpStatus.OK);
     }
 }

@@ -44,7 +44,11 @@ public class ApplicationConfiguration {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(final CorsRegistry registry) {
-                registry.addMapping("/**").allowedMethods("*").allowedHeaders("*");
+                registry.addMapping("/**")
+                        .allowedOrigins("http://social-media0282.s3-website.ap-south-1.amazonaws.com")
+                        .allowedMethods("*")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
             }
         };
     }
