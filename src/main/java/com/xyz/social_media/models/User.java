@@ -14,6 +14,12 @@ public class User {
    private Long dob;
    private String profile_img_url;
    private String cover_pic_url;
+   
+   @Column(name = "is_online")
+   private Boolean isOnline;
+   
+   @Column(name = "last_seen")
+   private Long lastSeen;
 
     public User(Long id, String name, String email, String password, String profile_img_url, Long dob, String cover_pic_url) {
         this.id = id;
@@ -23,6 +29,8 @@ public class User {
         this.profile_img_url = profile_img_url;
         this.dob = dob;
         this.cover_pic_url = cover_pic_url;
+        this.isOnline = false;
+        this.lastSeen = System.currentTimeMillis();
     }
 
     public User(){
@@ -82,5 +90,21 @@ public class User {
 
     public void setCover_pic_url(String cover_pic_url) {
         this.cover_pic_url = cover_pic_url;
+    }
+
+    public Boolean getIsOnline() {
+        return isOnline;
+    }
+
+    public void setIsOnline(Boolean isOnline) {
+        this.isOnline = isOnline;
+    }
+
+    public Long getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(Long lastSeen) {
+        this.lastSeen = lastSeen;
     }
 }

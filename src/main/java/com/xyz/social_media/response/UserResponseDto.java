@@ -7,6 +7,8 @@ public class UserResponseDto {
     private Long dob;
     private String profile_img_url;
     private String cover_pic_url;
+    private Boolean isOnline;
+    private Long lastSeen;
 
     public UserResponseDto(Long id, String name, Long dob, String profileImgUrl, String coverPicUrl) {
         this.userId = id;
@@ -57,5 +59,21 @@ public class UserResponseDto {
 
     public void setCover_pic_url(String cover_pic_url) {
         this.cover_pic_url = cover_pic_url;
+    }
+
+    public Boolean getIsOnline() {
+        return isOnline;
+    }
+
+    public void setIsOnline(Boolean isOnline) {
+        this.isOnline = isOnline;
+    }
+
+    public Long getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(Long lastSeen) {
+        this.lastSeen = lastSeen;
     }
 }
