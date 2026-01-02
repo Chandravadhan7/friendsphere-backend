@@ -1,5 +1,6 @@
 package com.xyz.social_media.service;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.xyz.social_media.models.Session;
 import com.xyz.social_media.models.User;
 import com.xyz.social_media.repository.SessionRepo;
@@ -26,12 +27,14 @@ import java.util.concurrent.TimeUnit;
 public class UserService {
     private UserRepo userRepo;
     private SessionRepo sessionRepo;
+    private GoogleOAuthService googleOAuthService;
     private static final String UPLOAD_DIR = "/home/ec2-user/uploads/";
 
     @Autowired
-    public UserService(UserRepo userRepo, SessionRepo sessionRepo){
+    public UserService(UserRepo userRepo, SessionRepo sessionRepo, GoogleOAuthService googleOAuthService){
         this.userRepo = userRepo;
         this.sessionRepo = sessionRepo;
+        this.googleOAuthService = googleOAuthService;
     }
 
     public User signUp(SignupRequestDto signupRequestDto){
@@ -59,8 +62,53 @@ public class UserService {
                             "active");
 
             Session ses = sessionRepo.save(session);
+            
+            // Set user online
+            user.setIsOnline(true);
+            user.setLastSeen(System.currentTimeMillis());
+            userRepo.save(user);
+            
             return new LoginResponseDto(ses.getSessionId(), ses.getExpiresAt(), user.getId());
         } else throw new Exception("Invalid credits");
+    }
+
+    public LoginResponseDto googleLogin(String idTokenString) throws Exception {
+        GoogleIdToken.Payload payload = googleOAuthService.verifyGoogleToken(idTokenString);
+        
+        String email = payload.getEmail();
+        String name = (String) payload.get("name");
+        String pictureUrl = (String) payload.get("picture");
+        
+        // Check if user exists
+        User user = userRepo.getUserByEmail(email);
+        
+        if (user == null) {
+            // Create new user
+            user = new User();
+            user.setEmail(email);
+            user.setName(name);
+            user.setPassword(""); // No password for OAuth users
+            user.setProfile_img_url(pictureUrl);
+            user.setDob(null);
+            user.setCover_pic_url(null);
+            user = userRepo.save(user);
+        }
+        
+        // Create session
+        Session session = new Session(
+                UniqueHelper.getSessionId(),
+                user.getId(),
+                UtilityHelper.getCurrentMillis() + TimeUnit.DAYS.toMillis(1),
+                "active");
+        
+        Session ses = sessionRepo.save(session);
+        
+        // Set user online
+        user.setIsOnline(true);
+        user.setLastSeen(System.currentTimeMillis());
+        userRepo.save(user);
+        
+        return new LoginResponseDto(ses.getSessionId(), ses.getExpiresAt(), user.getId());
     }
 
 
@@ -77,7 +125,7 @@ public class UserService {
             throw new RuntimeException("User not found with ID: " + userId);
         }
 
-        String imageUrl = "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/uploads/" + fileName;
+        String imageUrl = "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/uploads/" + fileName;
         user.setProfile_img_url(imageUrl);
         userRepo.save(user);
 
@@ -97,7 +145,7 @@ public class UserService {
             throw new RuntimeException("User not found with ID: " + userId);
         }
 
-        String imageUrl = "http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/uploads/" + fileName;
+        String imageUrl = "http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/uploads/" + fileName;
         user.setCover_pic_url(imageUrl);
         userRepo.save(user);
 
@@ -149,8 +197,32 @@ public class UserService {
 
     public void logout(String sessionId) {
         Session session = sessionRepo.findByValueAndStatus(sessionId, "active");
-        session.setStatus("logged out");
-        sessionRepo.save(session);
-        return;
+        if (session != null) {
+            session.setStatus("logged out");
+            sessionRepo.save(session);
+            
+            // Set user offline
+            User user = userRepo.getUserByUserId(session.getUserId());
+            if (user != null) {
+                user.setIsOnline(false);
+                user.setLastSeen(System.currentTimeMillis());
+                userRepo.save(user);
+            }
+        }
+    }
+
+    public void updateOnlineStatus(Long userId, Boolean isOnline) {
+        User user = userRepo.getUserByUserId(userId);
+        if (user != null) {
+            user.setIsOnline(isOnline);
+            if (!isOnline) {
+                user.setLastSeen(System.currentTimeMillis());
+            }
+            userRepo.save(user);
+        }
+    }
+
+    public User getUserWithStatus(Long userId) {
+        return userRepo.getUserByUserId(userId);
     }
 }

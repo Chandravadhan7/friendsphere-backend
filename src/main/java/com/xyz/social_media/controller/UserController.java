@@ -42,6 +42,17 @@ public class UserController {
         return loginResponseDto;
     }
 
+    @PostMapping("/api/google-login")
+    public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> request) {
+        try {
+            String idToken = request.get("idToken");
+            LoginResponseDto loginResponseDto = userService.googleLogin(idToken);
+            return ResponseEntity.ok(loginResponseDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Google authentication failed: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/{userId}")
     public UserResponseDto getUserDetails(@PathVariable Long userId){
         User user = userRepo.getUserByUserId(userId);
@@ -51,10 +62,21 @@ public class UserController {
         userResponseDto.setDob(user.getDob());
         userResponseDto.setName(user.getName());
         userResponseDto.setProfile_img_url(user.getProfile_img_url());
+        userResponseDto.setIsOnline(user.getIsOnline() != null ? user.getIsOnline() : false);
+        userResponseDto.setLastSeen(user.getLastSeen());
         return userResponseDto;
     }
+    
+    @PatchMapping("/{userId}/online-status")
+    public ResponseEntity<Void> updateOnlineStatus(@PathVariable Long userId, 
+                                                    @RequestParam Boolean isOnline) {
+        userService.updateOnlineStatus(userId, isOnline);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    
     @PostMapping("/api/logout")
-    public ResponseEntity<Void> logout(@RequestHeader("sessionId") String sessionId) {
+    public ResponseEntity<Void> logout(@RequestHeader("sessionId") String sessionId,
+                                       @RequestHeader("userId") Long userId) {
         userService.logout(sessionId);
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -26,6 +26,14 @@ public class MessageService {
         return messageRepo.save(messages);
     }
 
+    public Messages getMessageById(Long messageId) {
+        return messageRepo.findById(messageId).orElse(null);
+    }
+
+    public Messages updateMessage(Messages message) {
+        return messageRepo.save(message);
+    }
+
     public List<Messages> getMessagesByConversationId(Long conversationId){
         return messageRepo.getMessagesByConversationId(conversationId);
     }

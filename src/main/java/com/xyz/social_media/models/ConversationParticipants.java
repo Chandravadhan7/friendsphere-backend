@@ -24,6 +24,12 @@ public class ConversationParticipants {
     @Column(name = "is_admin", nullable = false)
     private boolean isAdmin;
 
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
+    @Column(name = "deleted_at")
+    private Long deletedAt;
+
     // Getters and Setters
     public Long getId() {
         return id;
@@ -71,5 +77,21 @@ public class ConversationParticipants {
 
     public void setIsAdmin(boolean isAdmin) {
         this.isAdmin = isAdmin;
+    }
+
+    public Boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public Long getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(Long deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }

@@ -20,6 +20,11 @@ public interface MessageRepo extends JpaRepository<Messages,Long> {
     @Query(value = "delete from messages m where m.message_id= :messageId",nativeQuery = true)
     void deleteMessageById(Long messageId);
 
+    @Transactional
+    @Modifying
+    @Query(value = "delete from messages m where m.conversation_id= :conversationId",nativeQuery = true)
+    void deleteMessagesByConversationId(@Param("conversationId") Long conversationId);
+
     @Query(value = "SELECT * FROM messages m " +
             "WHERE m.conversation_id = :conversationId " +
             "AND m.sender_id != :userId " +

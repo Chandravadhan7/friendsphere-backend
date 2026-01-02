@@ -34,4 +34,10 @@ public class ConversationParticipantController {
         ConversationParticipants conversationParticipants = conversationParticipantsService.setLastSeen(conversationId,otherUserId);
         return new ResponseEntity<>(conversationParticipants,HttpStatus.OK);
     }
+
+    @DeleteMapping("/{conversationId}/{userId}")
+    public ResponseEntity<String> removeParticipant(@PathVariable Long conversationId, @PathVariable Long userId){
+        conversationParticipantsService.removeParticipant(conversationId, userId);
+        return new ResponseEntity<>("Participant removed successfully", HttpStatus.OK);
+    }
 }

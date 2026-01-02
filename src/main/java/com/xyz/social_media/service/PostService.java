@@ -52,10 +52,10 @@ public class PostService {
 
                 if (fileType != null) {
                     if (fileType.startsWith("image/")) {
-                        post.setImageUrl("http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/uploads/" + fileName);
+                        post.setImageUrl("http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/uploads/" + fileName);
                         System.out.println("Image URL set: " + post.getImageUrl());
                     } else if (fileType.startsWith("video/")) {
-                        post.setVideoUrl("http://ec2-13-203-205-26.ap-south-1.compute.amazonaws.com:8080/uploads/" + fileName);
+                        post.setVideoUrl("http://ec2-3-110-55-80.ap-south-1.compute.amazonaws.com:8080/uploads/" + fileName);
                         System.out.println("Video URL set: " + post.getVideoUrl());
                     } else {
                         System.out.println("Unsupported file type: " + fileType);

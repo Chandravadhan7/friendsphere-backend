@@ -39,13 +39,17 @@ public class MyFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
 
         String requestURI1 = httpRequest.getRequestURI();
-        if (requestURI1.startsWith("/uploads/") || requestURI1.equals("/favicon.ico")) {
+        if (requestURI1.startsWith("/uploads/") || requestURI1.equals("/favicon.ico") || requestURI1.startsWith("/ws")) {
             chain.doFilter(request, response);
             return;
         }
 
-        httpResponse.setHeader("Access-Control-Allow-Origin", "http://social-media0282.s3-website.ap-south-1.amazonaws.com"); // Frontend URL
-//        httpResponse.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+        // Support both local development and S3 deployment
+        String origin = httpRequest.getHeader("Origin");
+        if (origin != null && (origin.equals("http://localhost:3000") || 
+            origin.equals("http://social-media0282.s3-website.ap-south-1.amazonaws.com"))) {
+            httpResponse.setHeader("Access-Control-Allow-Origin", origin);
+        }
         httpResponse.setHeader("Access-Control-Allow-Methods", "GET, POST,PATCH, PUT, DELETE, OPTIONS");
         httpResponse.setHeader(
                 "Access-Control-Allow-Headers", "Content-Type, Authorization, userId, sessionId");
